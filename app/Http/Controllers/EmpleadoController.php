@@ -9,9 +9,15 @@ use App\Models\Empleado;
 
 class EmpleadoController extends Controller
 {
-    public function inicio($fila)
+    public function inicio($fila, $cargo)
     {
-        $empleados = Empleado::with('usuario')->paginate($fila);
+        if($cargo == 'todos') {
+            $empleados = Empleado::with('usuario')->paginate($fila);
+        } else {
+            $empleados = Empleado::with('usuario')
+                                        ->where('cargo', 'LIKE', "$cargo")
+                                        ->paginate($fila);
+        }
         return response()->json($empleados, 200);
     }
 
@@ -39,12 +45,10 @@ class EmpleadoController extends Controller
         return response()->json($empleado, 200);
     }
 
-    public function buscar(Request $request)
+    public function buscar($campo, Request $request)
     {
         $busqueda = $request->search;
-        $resultado = Empleado::where('nombre', 'LIKE', "%$busqueda%")
-                            ->orWhere('apellido_p', 'LIKE', "%$busqueda%")
-                            ->orWhere('apellido_m', 'LIKE', "%$busqueda%")->paginate(10);
+        $resultado = Empleado::where("$campo", 'LIKE', "%$busqueda%")->paginate(10);
         return response()->json($resultado, 200);
     }
 

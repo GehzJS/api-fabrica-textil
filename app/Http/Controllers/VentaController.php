@@ -11,9 +11,15 @@ use App\Models\Cliente;
 
 class VentaController extends Controller
 {
-    public function inicio($fila)
+    public function inicio($fila, $estado)
     {
-        $ventas = Venta::with(['cliente', 'items'])->paginate($fila);
+        if($estado == 'todas') {
+            $ventas = Venta::with(['cliente', 'items'])->paginate($fila);
+        } else {
+            $ventas = Venta::with(['cliente', 'items'])
+                                        ->where('estado', 'LIKE', "$estado")
+                                        ->paginate($fila);
+        }
         return response()->json($ventas, 200);
     }
 
@@ -23,12 +29,12 @@ class VentaController extends Controller
         return response()->json($venta, 200);
     }
 
-    public function buscar(Request $request)
+    public function buscar($campo, Request $request)
     {
         $busqueda = $request->search;
-        $cliente = Cliente::where('nombre', 'LIKE', "%$busqueda%")->get();
-        if(count($empleado) > 0) {
-            $cliente = Venta::with(['cliente', 'items'])->where('cliente_id', 'LIKE', $cliente[0]['id'])->paginate(10);
+        $cliente = Cliente::where("$campo", 'LIKE', "%$busqueda%")->get();
+        if(count($cliente) > 0) {
+            $resultado = Venta::with(['cliente', 'items'])->where('cliente_id', 'LIKE', $cliente[0]['id'])->paginate(10);
             return response()->json($resultado, 200);
         } else {
             return response()->json([], 404);

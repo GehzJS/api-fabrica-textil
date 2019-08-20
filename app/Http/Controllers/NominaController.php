@@ -11,9 +11,15 @@ use App\Models\Empleado;
 
 class NominaController extends Controller
 {
-    public function inicio($fila)
+    public function inicio($fila, $estado)
     {
-        $nominas = Nomina::with(['empleado', 'items'])->paginate($fila);
+        if($estado == 'todas') {
+            $nominas = Nomina::with(['empleado', 'items'])->paginate($fila);
+        } else {
+            $nominas = Nomina::with(['empleado', 'items'])
+                                        ->where('estado', 'LIKE', "$estado")
+                                        ->paginate($fila);
+        }
         return response()->json($nominas, 200);
     }
 
@@ -23,10 +29,10 @@ class NominaController extends Controller
         return response()->json($nomina, 200);
     }
 
-    public function buscar(Request $request)
+    public function buscar($campo, Request $request)
     {
         $busqueda = $request->search;
-        $empleado = Empleado::where('nombre', 'LIKE', "%$busqueda%")->get();
+        $empleado = Empleado::where("$campo", 'LIKE', "%$busqueda%")->get();
         if(count($empleado) > 0) {
             $resultado = Nomina::with(['empleado', 'items'])->where('empleado_id', 'LIKE', $empleado[0]['id'])->paginate(10);
             return response()->json($resultado, 200);

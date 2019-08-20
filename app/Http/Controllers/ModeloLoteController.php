@@ -23,10 +23,10 @@ class ModeloLoteController extends Controller
         return response()->json($lote, 200);
     }
 
-    public function buscar(Request $request)
+    public function buscar($campo, Request $request)
     {
         $busqueda = $request->search;
-        $modelo = Modelo::where('nombre', 'LIKE', "%$busqueda%")->get();
+        $modelo = Modelo::where("$campo", 'LIKE', "%$busqueda%")->get();
         if(count($modelo) > 0) {
             $resultado = ModeloLote::with('modelo')->where('modelo_id', 'LIKE', $modelo[0]['id'])->paginate(10);
             return response()->json($resultado, 200);

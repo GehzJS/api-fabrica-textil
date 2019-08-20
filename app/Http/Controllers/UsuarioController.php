@@ -11,9 +11,15 @@ use App\Models\Empleado;
 
 class UsuarioController extends Controller
 {
-    public function inicio($fila)
+    public function inicio($fila, $rol)
     {
-        $usuarios = Usuario::with('empleado')->paginate($fila);
+        if($rol == 'todos') {
+            $usuarios = Usuario::with('empleado')->paginate($fila);
+        } else {
+            $usuarios = Usuario::with('empleado')
+                                        ->where('rol', 'LIKE', "$rol")
+                                        ->paginate($fila);
+        }
         return response()->json($usuarios, 200);
     }
 
@@ -28,6 +34,18 @@ class UsuarioController extends Controller
         $busqueda = $request->search;
         $resultado = Usuario::with('empleado')->where('usuario', 'LIKE', "%$busqueda%")->paginate(10);
         return response()->json($resultado, 200);
+    }
+
+    public function buscarPorEmpleado($campo, Request $request)
+    {
+        $busqueda = $request->search;
+        $empleado = Empleado::where("$campo", 'LIKE', "%$busqueda%")->get();
+        if(count($empleado) > 0) {
+            $resultado = Usuario::with(['empleado'])->where('empleado_id', 'LIKE', $empleado[0]['id'])->paginate(10);
+            return response()->json($resultado, 200);
+        } else {
+            return response()->json([], 404);
+        }
     }
 
     public function guardar(Request $request)

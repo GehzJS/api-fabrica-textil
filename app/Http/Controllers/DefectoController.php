@@ -24,10 +24,10 @@ class DefectoController extends Controller
         return response()->json($defecto, 200);
     }
 
-    public function buscarPorModelo(Request $request)
+    public function buscarPorModelo($campo, Request $request)
     {
         $busqueda = $request->search;
-        $modelo = Modelo::where('nombre', 'LIKE', "%$busqueda%")->get();
+        $modelo = Modelo::where("$campo", 'LIKE', "%$busqueda%")->get();
         if(count($modelo) > 0) {
             $resultado = Defecto::with(['empleado', 'modelo'])->where('modelo_id', 'LIKE', $modelo[0]['id'])->paginate(10);
             return response()->json($resultado, 200);
@@ -36,10 +36,10 @@ class DefectoController extends Controller
         }
     }
 
-    public function buscarPorEmpleado(Request $request)
+    public function buscarPorEmpleado($campo, Request $request)
     {
         $busqueda = $request->search;
-        $empleado = Empleado::where('nombre', 'LIKE', "%$busqueda%")->get();
+        $empleado = Empleado::where("$campo", 'LIKE', "%$busqueda%")->get();
         if(count($empleado) > 0) {
             $resultado = Defecto::with(['empleado', 'modelo'])->where('empleado_id', 'LIKE', $empleado[0]['id'])->paginate(10);
             return response()->json($resultado, 200);

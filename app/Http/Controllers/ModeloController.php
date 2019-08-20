@@ -48,10 +48,10 @@ class ModeloController extends Controller
         return response()->json($modelo, 200);
     }
 
-    public function buscar(Request $request)
+    public function buscar($campo, Request $request)
     {
         $busqueda = $request->search;
-        $resultado = Modelo::where('nombre', 'LIKE', "%$busqueda%")->paginate(10);
+        $resultado = Modelo::where("$campo", 'LIKE', "%$busqueda%")->paginate(10);
         return response()->json($resultado, 200);
     }
 

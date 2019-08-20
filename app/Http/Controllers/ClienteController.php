@@ -27,12 +27,10 @@ class ClienteController extends Controller
         return response()->json($cliente, 200);
     }
 
-    public function buscar(Request $request)
+    public function buscar($campo, Request $request)
     {
         $busqueda = $request->search;
-        $resultado = Cliente::where('nombre', 'LIKE', "%$busqueda%")
-                            ->orWhere('apellido_p', 'LIKE', "%$busqueda%")
-                            ->orWhere('apellido_m', 'LIKE', "%$busqueda%")->paginate(10);
+        $resultado = Cliente::where("$campo", 'LIKE', "%$busqueda%")->paginate(10);
         return response()->json($resultado, 200);
     }
 

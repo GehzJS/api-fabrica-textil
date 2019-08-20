@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Illuminate\Auth\Authenticatable;
 use Laravel\Lumen\Auth\Authorizable;
+use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 
 class Usuario extends Model implements AuthenticatableContract, AuthorizableContract
 {
-  use Authenticatable, Authorizable;
+  use HasApiTokens, Authenticatable, Authorizable;
 
   protected $table = 'usuarios';
   /**
@@ -35,6 +36,15 @@ class Usuario extends Model implements AuthenticatableContract, AuthorizableCont
   protected $hidden = [
     'contrasena',
   ];
+
+  public function findForPassport($username) {
+    return self::where('usuario', $username)->first();
+  }
+
+  public function validateForPassportPasswordGrant($password)
+    {
+        return Hash::check($password, $this->contrasena);
+    }
 
   public function empleado()
   {

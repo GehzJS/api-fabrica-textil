@@ -29,17 +29,17 @@ class OperacionController extends Controller
         return response()->json($operacion, 200);
     }
 
-    public function buscarPorOperacion(Request $request)
+    public function buscarPorOperacion($campo, Request $request)
     {
         $busqueda = $request->search;
-        $resultado = Operacion::with(['modelo'])->where('nombre', 'LIKE', "%$busqueda%")->paginate(10);
+        $resultado = Operacion::with(['modelo'])->where("$campo", 'LIKE', "%$busqueda%")->paginate(10);
         return response()->json($resultado, 200);
     }
 
-    public function buscarPorModelo(Request $request)
+    public function buscarPorModelo($campo, Request $request)
     {
         $busqueda = $request->search;
-        $modelo = Modelo::where('nombre', 'LIKE', "%$busqueda%")->get();
+        $modelo = Modelo::where("$campo", 'LIKE', "%$busqueda%")->get();
         if(count($modelo) > 0) {
             $resultado = Operacion::with(['modelo'])->where('modelo_id', 'LIKE', $modelo[0]['id'])->paginate(10);
             return response()->json($resultado, 200);

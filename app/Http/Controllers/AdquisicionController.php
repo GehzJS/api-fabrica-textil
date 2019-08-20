@@ -11,9 +11,15 @@ use App\Models\Proveedor;
 
 class AdquisicionController extends Controller
 {
-    public function inicio($fila)
+    public function inicio($fila, $estado)
     {
-        $adquisiciones = Adquisicion::with(['proveedor', 'items'])->paginate($fila);
+        if($estado == 'todas') {
+            $adquisiciones = Adquisicion::with(['proveedor', 'items'])->paginate($fila);
+        } else {
+            $adquisiciones = Adquisicion::with(['proveedor', 'items'])
+                                        ->where('estado', 'LIKE', "$estado")
+                                        ->paginate($fila);
+        }
         return response()->json($adquisiciones, 200);
     }
 
@@ -23,10 +29,10 @@ class AdquisicionController extends Controller
         return response()->json($adquisicion, 200);
     }
 
-    public function buscar(Request $request)
+    public function buscar($campo, Request $request)
     {
         $busqueda = $request->search;
-        $proveedor = Proveedor::where('nombre', 'LIKE', "%$busqueda%")->get();
+        $proveedor = Proveedor::where("$campo", 'LIKE', "%$busqueda%")->get();
         if(count($proveedor) > 0) {
             $resultado = Adquisicion::with(['proveedor', 'items'])->where('proveedor_id', 'LIKE', $proveedor[0]['id'])->paginate(10);
             return response()->json($resultado, 200);
